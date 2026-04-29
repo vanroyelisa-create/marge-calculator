@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(page_title="Margecalculator PM", page_icon="📊")
-st.title("📊 Professionele Margecalculator")
+st.title("📊 PM Margecalculator")
 
 tab1, tab2, tab3 = st.tabs(["Scenario 1: Totalen", "Scenario 2: Per woord", "Scenario 3: Target Marge"])
 
