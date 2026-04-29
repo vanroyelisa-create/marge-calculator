@@ -1,9 +1,27 @@
 import streamlit as st
 
-st.set_page_config(page_title="Margecalculator", page_icon="📊")
+st.set_page_config(page_title="Margecalculator PM", page_icon="📊")
 st.title("📊 PM Margecalculator")
 
-tab1, tab2, tab3 = st.tabs(["Scenario 1", "Scenario 2 (Jouw Tabel)", "Scenario 3"])
+tab1, tab2, tab3 = st.tabs(["Scenario 1: Totalen", "Scenario 2: Per woord", "Scenario 3: Target Marge"])
+
+# --- SCENARIO 1 ---
+with tab1:
+    st.header("Scenario 1: Totale Verkoop- en Inkoopprijs")
+    verkoop = st.number_input("Totale verkoopprijs (€):", min_value=0.0, value=0.0, step=10.0, key="s1_v")
+    inkoop = st.number_input("Totale inkoopprijs (€):", min_value=0.0, value=0.0, step=10.0, key="s1_i")
+    extra = st.number_input("Extra kosten (DTP etc.) (€):", min_value=0.0, value=0.0, step=5.0, key="s1_e")
+    
+    # Berekening
+    totaal_kost = inkoop + extra
+    winst = verkoop - totaal_kost
+    markup = (winst / totaal_kost * 100) if totaal_kost > 0 else 0
+    
+    st.divider()
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Totale kostprijs", f"€ {totaal_kost:.2f}")
+    col2.metric("Winst", f"€ {winst:.2f}")
+    col3.metric("Marge (Markup) %", f"{markup:.2f}%")
 
 # --- SCENARIO 2 (De tabel uit je screenshot) ---
 with tab2:
