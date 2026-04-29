@@ -23,53 +23,61 @@ with tab1:
     col2.metric("Winst", f"€ {winst:.2f}")
     col3.metric("Marge (Markup) %", f"{markup:.2f}%")
 
-# --- SCENARIO 2 (De tabel uit je screenshot) ---
+# --- SCENARIO 2 ---
 with tab2:
     st.header("Scenario 2: Prijs per woord")
+    # Aantal woorden bovenaan zoals gevraagd
+    woorden = st.number_input("Aantal woorden:", min_value=0, value=0, step=100, key="s2_a")
     
-    # Invoer
-    woorden = st.number_input("Aantal woorden:", min_value=0, value=1000, step=1)
+    c1, c2 = st.columns(2)
+    with c1:
+        verkoop_w = st.number_input("Verkoopprijs per woord incl. revisie (€):", format="%.4f", value=0.0000)
+        inkoop_w = st.number_input("Inkoopprijs per woord excl. revisie (€):", format="%.4f", value=0.0000)
+    with c2:
+        revisie_w = st.number_input("Inkoopprijs revisie per woord (€):", format="%.4f", value=0.0200)
+        extra_2 = st.number_input("Extra kosten (€):", min_value=0.0, value=0.0, key="s2_e")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        verkoop_w = st.number_input("Verkoopprijs p.w. incl. revisie (€):", format="%.4f", value=0.2250)
-        inkoop_w = st.number_input("Inkoopprijs p.w. excl. revisie (€):", format="%.4f", value=0.1000)
-    with col2:
-        revisie_w = st.number_input("Inkoopprijs revisie p.w. (€):", format="%.4f", value=0.0200)
-        extra_kosten = st.number_input("Extra kosten (€):", min_value=0.0, value=0.00, format="%.2f")
-
-    # BEREKENINGEN (Gecorrigeerd naar Winst/Verkoop)
+    # Berekening
     tot_verkoop = woorden * verkoop_w
-    tot_inkoop = (woorden * (inkoop_w + revisie_w)) + extra_kosten
-    winst = tot_verkoop - tot_inkoop
-    
-    # DE CRUCIALE FORMULE VOOR 47%: Winst / Verkoop
-    marge_procent = (winst / tot_verkoop * 100) if tot_verkoop > 0 else 0
+    tot_inkoop_zonder_extra = woorden * (inkoop_w + revisie_w)
+    tot_inkoop_totaal = tot_inkoop_zonder_extra + extra_2
+    winst_2 = tot_verkoop - tot_inkoop_totaal
+    markup_2 = (winst_2 / tot_inkoop_totaal * 100) if tot_inkoop_totaal > 0 else 0
     
     st.divider()
-    
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Totale Verkoop", f"€ {tot_verkoop:.2f}")
-    c2.metric("Totale Inkoop", f"€ {tot_inkoop:.2f}")
-    c3.metric("Marge (%)", f"{marge_procent:.2f}%")
+    res1, res2, res3 = st.columns(3)
+    res1.write(f"**Totale verkoop:** € {tot_verkoop:.2f}")
+    res2.write(f"**Totale inkoop:** € {tot_inkoop_totaal:.2f}")
+    res3.metric("Marge (Markup)", f"{markup_2:.2f}%", delta=f"€ {winst_2:.2f} winst")
 
-    st.write(f"**Winst op dit project:** € {winst:.2f}")
-
-# --- SCENARIO 3 (Terugrekenen op basis van Winst/Verkoop) ---
+# --- SCENARIO 3 ---
 with tab3:
-    st.header("Scenario 3: Target Marge")
-    v_w_3 = st.number_input("Verkoopprijs p.w. (€):", format="%.4f", value=0.2250, key="v3")
-    a_3 = st.number_input("Aantal woorden:", value=1000, key="a3")
-    t_3 = st.number_input("Gewenste minimale marge (%):", value=47.00, key="t3")
-    e_3 = st.number_input("Extra kosten (€):", value=0.0, key="e3")
-    r_3 = st.number_input("Inkoop revisie p.w. (€):", value=0.0200, format="%.4f", key="r3")
+    st.header("Scenario 3: Minimale marge en max inkoopprijs")
+    # Aantal woorden bovenaan zoals gevraagd
+    aantal_3 = st.number_input("Aantal woorden:", min_value=0, value=0, key="s3_a")
     
-    # Formule voor Inkoop bij Profit Margin: Inkoop = Verkoop * (1 - Marge)
-    t_v = a_3 * v_w_3
-    max_inkoop_budget = t_v * (1 - (t_3 / 100))
-    max_p_w_incl = (max_inkoop_budget - e_3) / a_3 if a_3 > 0 else 0
-    max_p_w_excl = max_p_w_incl - r_3
+    c3, c4 = st.columns(2)
+    with c3:
+        v_woord_3 = st.number_input("Verkoopprijs per woord incl. revisie (€):", format="%.4f", value=0.0000, key="s3_v")
+        extra_3 = st.number_input("Extra kosten (€):", min_value=0.0, value=0.0, key="s3_e")
+    with c4:
+        target_3 = st.number_input("Gewenste minimale marge (%):", value=0.0, key="s3_t")
+        revisie_inkoop = st.number_input("Vaste inkoopprijs revisie per woord (€):", format="%.4f", value=0.0200, key="s3_r")
+
+    # Logica exact uit Excel:
+    tot_verkoop_3 = aantal_3 * v_woord_3
+    # Max kostprijs incl. extra kosten (€) = Verkoop / (1 + Marge%)
+    max_kost_incl_extra = tot_verkoop_3 / (1 + (target_3 / 100)) if target_3 > -100 else 0
+    # Max inkoopprijs excl. extra kosten (€)
+    max_inkoop_excl_extra = max_kost_incl_extra - extra_3
+    # Max inkoopprijs per woord inclusief revisie (€)
+    max_p_w_incl = max_inkoop_excl_extra / aantal_3 if aantal_3 > 0 else 0
+    # Max inkoopprijs per woord exclusief revisie (€)
+    max_p_w_excl = max_p_w_incl - revisie_inkoop
     
     st.divider()
-    st.success(f"Om {t_3}% marge te halen mag de inkoopprijs per woord max. **€ {max_p_w_excl:.4f}** zijn.")
-    st.info(f"Totaal inkoopbudget (excl. extra kosten): € {max_inkoop_budget - e_3:.2f}")
+    st.write(f"**Totale verkoopprijs:** € {tot_verkoop_3:.2f}")
+    
+    col_a, col_b = st.columns(2)
+    col_a.success(f"**Max inkoop per woord (incl. rev):**\n\n€ {max_p_w_incl:.4f}")
+    col_b.success(f"**Max inkoop per woord (excl. rev):**\n\n€ {max_p_w_excl:.4f}")
