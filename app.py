@@ -25,7 +25,7 @@ with tab1:
 
 # --- SCENARIO 2 ---
 with tab2:
-    st.header("Scenario 2: Prijs per woord en aantal woorden")
+    st.header("Scenario 2: Prijs per woord")
     # Aantal woorden bovenaan zoals gevraagd
     woorden = st.number_input("Aantal woorden:", min_value=0, value=0, step=100, key="s2_a")
     
@@ -82,4 +82,4 @@ with tab3:
     col_a.success(f"**Max inkoop per woord (incl. rev):**\n\n€ {max_p_w_incl:.4f}")
     col_b.success(f"**Max inkoop per woord (excl. rev):**\n\n€ {max_p_w_excl:.4f}")
     
-    st.info(f"Totaal budget voor freelancer (excl. extra kosten): € {max_inkoop_excl_extra:.2f}")
+   
